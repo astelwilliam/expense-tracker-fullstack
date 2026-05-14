@@ -28,6 +28,14 @@ function Transactions() {
     setAmount("");
   };
 
+  const handleDeleteTransaction = (id: number) => {
+    setTransactions(
+      transactions.filter(
+        (transaction) => transaction.id !== id
+      )
+    );
+  };
+
   return (
     <MainLayout>
       <div className="flex justify-between items-center mb-8">
@@ -75,8 +83,10 @@ function Transactions() {
         {transactions.map((transaction) => (
           <TransactionCard
             key={transaction.id}
+            id={transaction.id}
             title={transaction.title}
             amount={transaction.amount}
+            onDelete={handleDeleteTransaction}
           />
         ))}
       </div>
