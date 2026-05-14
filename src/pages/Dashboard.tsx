@@ -1,4 +1,5 @@
 import MainLayout from "../layouts/MainLayout";
+import StatCard from "../components/StatCard";
 
 function Dashboard() {
   return (
@@ -7,35 +8,51 @@ function Dashboard() {
         Dashboard
       </h1>
 
-      <div className="grid grid-cols-3 gap-6">
-        <div className="bg-zinc-900 p-6 rounded-2xl">
-          <h2 className="text-zinc-400 mb-2">
-            Total Balance
-          </h2>
+      <div className="grid grid-cols-3 gap-6 mb-10">
+        <StatCard
+          title="Total Balance"
+          amount="₹25,000"
+        />
 
-          <p className="text-3xl font-bold">
-            ₹25,000
-          </p>
-        </div>
+        <StatCard
+          title="Income"
+          amount="₹40,000"
+          color="text-green-500"
+        />
 
-        <div className="bg-zinc-900 p-6 rounded-2xl">
-          <h2 className="text-zinc-400 mb-2">
-            Income
-          </h2>
+        <StatCard
+          title="Expenses"
+          amount="₹15,000"
+          color="text-red-500"
+        />
+      </div>
 
-          <p className="text-3xl font-bold text-green-500">
-            ₹40,000
-          </p>
-        </div>
+      <div className="bg-zinc-900 p-6 rounded-2xl">
+        <h2 className="text-2xl font-bold mb-5">
+          Recent Transactions
+        </h2>
 
-        <div className="bg-zinc-900 p-6 rounded-2xl">
-          <h2 className="text-zinc-400 mb-2">
-            Expenses
-          </h2>
+        <div className="space-y-4">
+          <div className="flex justify-between border-b border-zinc-800 pb-3">
+            <span>Groceries</span>
+            <span className="text-red-500">
+              - ₹2,000
+            </span>
+          </div>
 
-          <p className="text-3xl font-bold text-red-500">
-            ₹15,000
-          </p>
+          <div className="flex justify-between border-b border-zinc-800 pb-3">
+            <span>Salary</span>
+            <span className="text-green-500">
+              + ₹40,000
+            </span>
+          </div>
+
+          <div className="flex justify-between border-b border-zinc-800 pb-3">
+            <span>Internet Bill</span>
+            <span className="text-red-500">
+              - ₹1,200
+            </span>
+          </div>
         </div>
       </div>
     </MainLayout>
