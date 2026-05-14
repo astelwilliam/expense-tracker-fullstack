@@ -1,5 +1,6 @@
 import MainLayout from "../layouts/MainLayout";
 import StatCard from "../components/StatCard";
+import { transactions } from "../data/transactions";
 
 function Dashboard() {
   return (
@@ -33,26 +34,25 @@ function Dashboard() {
         </h2>
 
         <div className="space-y-4">
-          <div className="flex justify-between border-b border-zinc-800 pb-3">
-            <span>Groceries</span>
-            <span className="text-red-500">
-              - ₹2,000
-            </span>
-          </div>
+          {transactions.map((transaction) => (
+            <div
+              key={transaction.id}
+              className="flex justify-between border-b border-zinc-800 pb-3"
+            >
+              <span>{transaction.title}</span>
 
-          <div className="flex justify-between border-b border-zinc-800 pb-3">
-            <span>Salary</span>
-            <span className="text-green-500">
-              + ₹40,000
-            </span>
-          </div>
-
-          <div className="flex justify-between border-b border-zinc-800 pb-3">
-            <span>Internet Bill</span>
-            <span className="text-red-500">
-              - ₹1,200
-            </span>
-          </div>
+              <span
+                className={
+                  transaction.amount > 0
+                    ? "text-green-500"
+                    : "text-red-500"
+                }
+              >
+                {transaction.amount > 0 ? "+" : "-"} ₹
+                {Math.abs(transaction.amount)}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
     </MainLayout>
