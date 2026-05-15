@@ -1,8 +1,30 @@
 import MainLayout from "../layouts/MainLayout";
 import StatCard from "../components/StatCard";
-import { transactions } from "../data/transactions";
+
+import { useTransactions } from "../context/TransactionContext";
 
 function Dashboard() {
+  const { transactions } =
+    useTransactions();
+
+  const income = transactions
+    .filter((transaction) => transaction.amount > 0)
+    .reduce(
+      (total, transaction) =>
+        total + transaction.amount,
+      0
+    );
+
+  const expenses = transactions
+    .filter((transaction) => transaction.amount < 0)
+    .reduce(
+      (total, transaction) =>
+        total + transaction.amount,
+      0
+    );
+
+  const balance = income + expenses;
+
   return (
     <MainLayout>
       <h1 className="text-4xl font-bold mb-6">
@@ -12,18 +34,18 @@ function Dashboard() {
       <div className="grid grid-cols-3 gap-6 mb-10">
         <StatCard
           title="Total Balance"
-          amount="₹25,000"
+          amount={`₹${balance}`}
         />
 
         <StatCard
           title="Income"
-          amount="₹40,000"
+          amount={`₹${income}`}
           color="text-green-500"
         />
 
         <StatCard
           title="Expenses"
-          amount="₹15,000"
+          amount={`₹${Math.abs(expenses)}`}
           color="text-red-500"
         />
       </div>

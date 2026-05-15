@@ -1,11 +1,16 @@
 import { useState } from "react";
+
 import MainLayout from "../layouts/MainLayout";
 import TransactionCard from "../components/TransactionCard";
-import { transactions as initialTransactions } from "../data/transactions";
+
+import { useTransactions } from "../context/TransactionContext";
 
 function Transactions() {
-  const [transactions, setTransactions] =
-    useState(initialTransactions);
+  const {
+    transactions,
+    addTransaction,
+    deleteTransaction,
+  } = useTransactions();
 
   const [title, setTitle] = useState("");
   const [amount, setAmount] = useState("");
@@ -13,27 +18,10 @@ function Transactions() {
   const handleAddTransaction = () => {
     if (!title || !amount) return;
 
-    const newTransaction = {
-      id: Date.now(),
-      title,
-      amount: Number(amount),
-    };
-
-    setTransactions([
-      newTransaction,
-      ...transactions,
-    ]);
+    addTransaction(title, Number(amount));
 
     setTitle("");
     setAmount("");
-  };
-
-  const handleDeleteTransaction = (id: number) => {
-    setTransactions(
-      transactions.filter(
-        (transaction) => transaction.id !== id
-      )
-    );
   };
 
   return (
@@ -86,7 +74,7 @@ function Transactions() {
             id={transaction.id}
             title={transaction.title}
             amount={transaction.amount}
-            onDelete={handleDeleteTransaction}
+            onDelete={deleteTransaction}
           />
         ))}
       </div>
