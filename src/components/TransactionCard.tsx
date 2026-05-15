@@ -12,7 +12,7 @@ function TransactionCard({
   onDelete,
 }: TransactionCardProps) {
   return (
-    <div className="bg-zinc-900 p-5 rounded-2xl flex justify-between items-center">
+    <div className="bg-zinc-900 border border-zinc-800 hover:border-zinc-700 transition p-5 rounded-2xl flex justify-between items-center">
       <div>
         <h2 className="text-lg font-medium">
           {title}

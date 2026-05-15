@@ -37,7 +37,7 @@ function Transactions() {
           Add Transaction
         </h2>
 
-        <div className="flex gap-4">
+        <div className="flex flex-col md:flex-row gap-4">
           <input
             type="text"
             placeholder="Transaction Title"
@@ -45,7 +45,7 @@ function Transactions() {
             onChange={(e) =>
               setTitle(e.target.value)
             }
-            className="flex-1 bg-zinc-800 text-white p-3 rounded-xl outline-none"
+            className="flex-1 bg-zinc-800 text-white p-3 rounded-xl outline-none focus:ring-2 focus:ring-white transition"
           />
 
           <input
@@ -55,12 +55,12 @@ function Transactions() {
             onChange={(e) =>
               setAmount(e.target.value)
             }
-            className="w-40 bg-zinc-800 text-white p-3 rounded-xl outline-none"
+            className="w-40 bg-zinc-800 text-white p-3 rounded-xl outline-none focus:ring-2 focus:ring-white transition"
           />
 
           <button
             onClick={handleAddTransaction}
-            className="bg-white text-black px-5 rounded-xl font-medium hover:bg-zinc-200 transition"
+            className="bg-white text-black px-5 rounded-xl font-medium hover:bg-zinc-200 active:scale-95 transition"
           >
             Add
           </button>
