@@ -1,11 +1,30 @@
+import { useEffect } from "react";
+
 import MainLayout from "../layouts/MainLayout";
 import StatCard from "../components/StatCard";
 
 import { useTransactions } from "../context/TransactionContext";
 
+import api from "../services/api";
+
 function Dashboard() {
   const { transactions } =
     useTransactions();
+
+  useEffect(() => {
+    const fetchApi = async () => {
+      try {
+        const response =
+          await api.get("/");
+
+        console.log(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchApi();
+  }, []);
 
   const income = transactions
     .filter((transaction) => transaction.amount > 0)
@@ -31,7 +50,7 @@ function Dashboard() {
         Dashboard
       </h1>
 
-      <div className="grid grid-cols-3 gap-6 mb-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-10">
         <StatCard
           title="Total Balance"
           amount={`₹${balance}`}
