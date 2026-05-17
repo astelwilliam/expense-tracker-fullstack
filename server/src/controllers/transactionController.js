@@ -47,6 +47,44 @@ const addTransaction = async (
   }
 };
 
+const updateTransaction = async (
+  req,
+  res
+) => {
+  try {
+    const transaction =
+      await Transaction.findOne({
+        _id: req.params.id,
+        user: req.user.id,
+      });
+
+    if (!transaction) {
+      return res.status(404).json({
+        message:
+          "Transaction not found",
+      });
+    }
+
+    transaction.title =
+      req.body.title ??
+      transaction.title;
+
+    transaction.amount =
+      req.body.amount ??
+      transaction.amount;
+
+    const updatedTransaction =
+      await transaction.save();
+
+    res.json(updatedTransaction);
+  } catch (error) {
+    res.status(500).json({
+      message:
+        "Error updating transaction",
+    });
+  }
+};
+
 const deleteTransaction = async (
   req,
   res
@@ -89,5 +127,6 @@ const deleteTransaction = async (
 module.exports = {
   getTransactions,
   addTransaction,
+  updateTransaction,
   deleteTransaction,
 };
