@@ -85,15 +85,15 @@ function Analytics() {
 
   return (
     <MainLayout>
-      <h1 className="text-4xl font-bold mb-8">
+      <h1 className="text-3xl md:text-4xl font-bold mb-8">
         Analytics
       </h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
         {/* PIE CHART */}
 
-        <div className="bg-zinc-900 p-6 rounded-2xl min-h-[400px]">
-          <h2 className="text-2xl font-bold mb-4">
+        <div className="bg-zinc-900 p-4 md:p-6 rounded-2xl min-h-[400px]">
+          <h2 className="text-xl md:text-2xl font-bold mb-4">
             Income vs Expenses
           </h2>
 
@@ -106,7 +106,7 @@ function Analytics() {
                 data={pieData}
                 dataKey="value"
                 nameKey="name"
-                outerRadius={120}
+                outerRadius={100}
                 label
               >
                 {pieData.map(
@@ -128,8 +128,8 @@ function Analytics() {
 
         {/* BAR CHART */}
 
-        <div className="bg-zinc-900 p-6 rounded-2xl min-h-[400px]">
-          <h2 className="text-2xl font-bold mb-4">
+        <div className="bg-zinc-900 p-4 md:p-6 rounded-2xl min-h-[400px]">
+          <h2 className="text-xl md:text-2xl font-bold mb-4">
             Transactions Overview
           </h2>
 

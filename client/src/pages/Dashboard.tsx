@@ -26,8 +26,6 @@ function Dashboard() {
       );
 
       setTransactions(response.data);
-
-      console.log(response.data);
     } catch (error) {
       console.log(error);
     }
@@ -59,59 +57,79 @@ function Dashboard() {
 
   return (
     <MainLayout>
-      <h1 className="text-4xl font-bold mb-6">
-        Dashboard
-      </h1>
+      <div className="w-full max-w-full overflow-hidden">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 break-words">
+          Dashboard
+        </h1>
 
-      <div className="grid grid-cols-3 gap-6 mb-10">
-        <StatCard
-          title="Total Balance"
-          amount={`₹${balance}`}
-        />
+        {/* STATS */}
 
-        <StatCard
-          title="Income"
-          amount={`₹${income}`}
-          color="text-green-500"
-        />
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6 mb-8 w-full">
+          <div className="min-w-0">
+            <StatCard
+              title="Total Balance"
+              amount={`₹${balance}`}
+            />
+          </div>
 
-        <StatCard
-          title="Expenses"
-          amount={`₹${Math.abs(expenses)}`}
-          color="text-red-500"
-        />
-      </div>
+          <div className="min-w-0">
+            <StatCard
+              title="Income"
+              amount={`₹${income}`}
+              color="text-green-500"
+            />
+          </div>
 
-      <div className="bg-zinc-900 p-6 rounded-2xl">
-        <h2 className="text-2xl font-bold mb-5">
-          Recent Transactions
-        </h2>
+          <div className="min-w-0">
+            <StatCard
+              title="Expenses"
+              amount={`₹${Math.abs(
+                expenses
+              )}`}
+              color="text-red-500"
+            />
+          </div>
+        </div>
 
-        <div className="space-y-4">
-          {transactions.map((transaction) => (
-            <div
-              key={transaction._id}
-              className="flex justify-between border-b border-zinc-800 pb-3"
-            >
-              <span>{transaction.title}</span>
+        {/* RECENT TRANSACTIONS */}
 
-              <span
-                className={
-                  transaction.amount > 0
-                    ? "text-green-500"
-                    : "text-red-500"
-                }
-              >
-                {transaction.amount > 0
-                  ? "+"
-                  : "-"}{" "}
-                ₹
-                {Math.abs(
-                  transaction.amount
-                )}
-              </span>
-            </div>
-          ))}
+        <div className="bg-zinc-900 p-4 md:p-6 rounded-2xl w-full overflow-hidden">
+          <h2 className="text-xl md:text-2xl font-bold mb-5">
+            Recent Transactions
+          </h2>
+
+          <div className="space-y-4">
+            {transactions.map(
+              (transaction) => (
+                <div
+                  key={transaction._id}
+                  className="flex items-center justify-between gap-4 border-b border-zinc-800 pb-3"
+                >
+                  <span className="truncate">
+                    {transaction.title}
+                  </span>
+
+                  <span
+                    className={`font-semibold whitespace-nowrap text-sm md:text-base ${
+                      transaction.amount >
+                      0
+                        ? "text-green-500"
+                        : "text-red-500"
+                    }`}
+                  >
+                    {transaction.amount >
+                    0
+                      ? "+"
+                      : "-"}{" "}
+                    ₹
+                    {Math.abs(
+                      transaction.amount
+                    )}
+                  </span>
+                </div>
+              )
+            )}
+          </div>
         </div>
       </div>
     </MainLayout>

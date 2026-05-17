@@ -1,18 +1,21 @@
-import { ReactNode } from "react";
 import Sidebar from "../components/Sidebar";
 
-interface MainLayoutProps {
-  children: ReactNode;
+interface Props {
+  children: React.ReactNode;
 }
 
 function MainLayout({
   children,
-}: MainLayoutProps) {
+}: Props) {
   return (
-    <div className="flex bg-black text-white min-h-screen">
+    <div className="min-h-screen bg-black text-white lg:flex">
+      {/* SIDEBAR */}
+
       <Sidebar />
 
-      <main className="flex-1 p-4 md:p-8 overflow-x-hidden">
+      {/* MAIN CONTENT */}
+
+      <main className="flex-1 w-full p-4 md:p-6 lg:p-8 overflow-x-hidden">
         {children}
       </main>
     </div>
