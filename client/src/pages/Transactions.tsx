@@ -10,7 +10,18 @@ interface Transaction {
   _id: string;
   title: string;
   amount: number;
+  category: string;
 }
+
+const categories = [
+  "Food",
+  "Salary",
+  "Shopping",
+  "Bills",
+  "Travel",
+  "Entertainment",
+  "Other",
+];
 
 function Transactions() {
   const [transactions, setTransactions] =
@@ -22,6 +33,9 @@ function Transactions() {
   const [amount, setAmount] =
     useState("");
 
+  const [category, setCategory] =
+    useState("Other");
+
   const [editingId, setEditingId] =
     useState<string | null>(null);
 
@@ -30,6 +44,9 @@ function Transactions() {
 
   const [editAmount, setEditAmount] =
     useState("");
+
+  const [editCategory, setEditCategory] =
+    useState("Other");
 
   const [isAdding, setIsAdding] =
     useState(false);
@@ -71,6 +88,7 @@ function Transactions() {
         {
           title,
           amount: Number(amount),
+          category,
         }
       );
 
@@ -81,6 +99,8 @@ function Transactions() {
       setTitle("");
 
       setAmount("");
+
+      setCategory("Other");
 
       fetchTransactions();
 
@@ -130,6 +150,10 @@ function Transactions() {
     setEditAmount(
       transaction.amount.toString()
     );
+
+    setEditCategory(
+      transaction.category
+    );
   };
 
   const cancelEditing = () => {
@@ -138,6 +162,8 @@ function Transactions() {
     setEditTitle("");
 
     setEditAmount("");
+
+    setEditCategory("Other");
   };
 
   const handleUpdate = async (
@@ -152,6 +178,7 @@ function Transactions() {
           title: editTitle,
           amount:
             Number(editAmount),
+          category: editCategory,
         }
       );
 
@@ -207,6 +234,23 @@ function Transactions() {
           required
         />
 
+        <select
+          value={category}
+          onChange={(e) =>
+            setCategory(e.target.value)
+          }
+          className="w-full p-3 rounded-xl bg-zinc-800 text-white"
+        >
+          {categories.map((cat) => (
+            <option
+              key={cat}
+              value={cat}
+            >
+              {cat}
+            </option>
+          ))}
+        </select>
+
         <button
           type="submit"
           disabled={isAdding}
@@ -252,6 +296,29 @@ function Transactions() {
                     className="w-full p-3 rounded-xl bg-zinc-800 text-white"
                   />
 
+                  <select
+                    value={
+                      editCategory
+                    }
+                    onChange={(e) =>
+                      setEditCategory(
+                        e.target.value
+                      )
+                    }
+                    className="w-full p-3 rounded-xl bg-zinc-800 text-white"
+                  >
+                    {categories.map(
+                      (cat) => (
+                        <option
+                          key={cat}
+                          value={cat}
+                        >
+                          {cat}
+                        </option>
+                      )
+                    )}
+                  </select>
+
                   <div className="flex gap-3">
                     <button
                       onClick={() =>
@@ -287,6 +354,12 @@ function Transactions() {
                         transaction.title
                       }
                     </h2>
+
+                    <p className="text-sm text-zinc-400">
+                      {
+                        transaction.category
+                      }
+                    </p>
 
                     <p
                       className={`text-sm ${

@@ -13,6 +13,20 @@ const transactionSchema =
         required: true,
       },
 
+      category: {
+        type: String,
+        required: true,
+        enum: [
+          "Food",
+          "Salary",
+          "Shopping",
+          "Bills",
+          "Travel",
+          "Entertainment",
+          "Other",
+        ],
+      },
+
       user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",

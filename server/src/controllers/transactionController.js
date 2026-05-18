@@ -27,13 +27,17 @@ const addTransaction = async (
   res
 ) => {
   try {
-    const { title, amount } =
-      req.body;
+    const {
+      title,
+      amount,
+      category,
+    } = req.body;
 
     const transaction =
       await Transaction.create({
         title,
         amount,
+        category,
         user: req.user.id,
       });
 
@@ -72,6 +76,10 @@ const updateTransaction = async (
     transaction.amount =
       req.body.amount ??
       transaction.amount;
+
+    transaction.category =
+      req.body.category ??
+      transaction.category;
 
     const updatedTransaction =
       await transaction.save();
