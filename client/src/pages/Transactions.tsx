@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 
+import toast from "react-hot-toast";
+
 import api from "../services/api";
 
 import MainLayout from "../layouts/MainLayout";
@@ -29,6 +31,15 @@ function Transactions() {
   const [editAmount, setEditAmount] =
     useState("");
 
+  const [isAdding, setIsAdding] =
+    useState(false);
+
+  const [isUpdating, setIsUpdating] =
+    useState(false);
+
+  const [deletingId, setDeletingId] =
+    useState<string | null>(null);
+
   const fetchTransactions = async () => {
     try {
       const response = await api.get(
@@ -37,7 +48,9 @@ function Transactions() {
 
       setTransactions(response.data);
     } catch (error) {
-      console.log(error);
+      toast.error(
+        "Failed to load transactions"
+      );
     }
   };
 
@@ -51,6 +64,8 @@ function Transactions() {
     e.preventDefault();
 
     try {
+      setIsAdding(true);
+
       await api.post(
         "/transactions",
         {
@@ -59,13 +74,23 @@ function Transactions() {
         }
       );
 
+      toast.success(
+        "Transaction added"
+      );
+
       setTitle("");
 
       setAmount("");
 
       fetchTransactions();
+
+      setIsAdding(false);
     } catch (error) {
-      console.log(error);
+      setIsAdding(false);
+
+      toast.error(
+        "Failed to add transaction"
+      );
     }
   };
 
@@ -73,13 +98,25 @@ function Transactions() {
     id: string
   ) => {
     try {
+      setDeletingId(id);
+
       await api.delete(
         `/transactions/${id}`
       );
 
+      toast.success(
+        "Transaction deleted"
+      );
+
       fetchTransactions();
+
+      setDeletingId(null);
     } catch (error) {
-      console.log(error);
+      setDeletingId(null);
+
+      toast.error(
+        "Failed to delete transaction"
+      );
     }
   };
 
@@ -107,6 +144,8 @@ function Transactions() {
     id: string
   ) => {
     try {
+      setIsUpdating(true);
+
       await api.put(
         `/transactions/${id}`,
         {
@@ -116,11 +155,21 @@ function Transactions() {
         }
       );
 
+      toast.success(
+        "Transaction updated"
+      );
+
       setEditingId(null);
 
       fetchTransactions();
+
+      setIsUpdating(false);
     } catch (error) {
-      console.log(error);
+      setIsUpdating(false);
+
+      toast.error(
+        "Failed to update transaction"
+      );
     }
   };
 
@@ -160,9 +209,12 @@ function Transactions() {
 
         <button
           type="submit"
-          className="bg-green-500 hover:bg-green-600 px-5 py-3 rounded-xl font-bold transition"
+          disabled={isAdding}
+          className="bg-green-500 hover:bg-green-600 disabled:opacity-50 px-5 py-3 rounded-xl font-bold transition"
         >
-          Add Transaction
+          {isAdding
+            ? "Adding..."
+            : "Add Transaction"}
         </button>
       </form>
 
@@ -207,9 +259,14 @@ function Transactions() {
                           transaction._id
                         )
                       }
-                      className="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-lg"
+                      disabled={
+                        isUpdating
+                      }
+                      className="bg-blue-500 hover:bg-blue-600 disabled:opacity-50 px-4 py-2 rounded-lg"
                     >
-                      Save
+                      {isUpdating
+                        ? "Saving..."
+                        : "Save"}
                     </button>
 
                     <button
@@ -264,9 +321,16 @@ function Transactions() {
                           transaction._id
                         )
                       }
-                      className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg"
+                      disabled={
+                        deletingId ===
+                        transaction._id
+                      }
+                      className="bg-red-500 hover:bg-red-600 disabled:opacity-50 px-4 py-2 rounded-lg"
                     >
-                      Delete
+                      {deletingId ===
+                      transaction._id
+                        ? "Deleting..."
+                        : "Delete"}
                     </button>
                   </div>
                 </div>

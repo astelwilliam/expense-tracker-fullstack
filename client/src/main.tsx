@@ -1,16 +1,28 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+
 import App from "./App";
+
 import "./index.css";
 
-import { TransactionProvider } from "./context/TransactionContext";
+import { Toaster } from "react-hot-toast";
 
 ReactDOM.createRoot(
   document.getElementById("root")!
 ).render(
   <React.StrictMode>
-    <TransactionProvider>
-      <App />
-    </TransactionProvider>
+    <App />
+
+    <Toaster
+      position="top-right"
+      toastOptions={{
+        style: {
+          background: "#18181b",
+          color: "#fff",
+          border:
+            "1px solid #27272a",
+        },
+      }}
+    />
   </React.StrictMode>
 );
