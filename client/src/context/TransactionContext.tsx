@@ -1,51 +1,50 @@
-import {
+import React, {
   createContext,
   useContext,
   useEffect,
   useState,
-  ReactNode,
 } from "react";
 
 import api from "../services/api";
 
-interface Transaction {
-  _id: string;
+export interface Transaction {
+  _id?: string;
   title: string;
   amount: number;
+  category?: string;
+  createdAt?: string;
 }
 
 interface TransactionContextType {
   transactions: Transaction[];
 
   addTransaction: (
-    title: string,
-    amount: number
+    transaction: Transaction
   ) => Promise<void>;
 
   deleteTransaction: (
     id: string
   ) => Promise<void>;
+
+  fetchTransactions: () => Promise<void>;
 }
 
 const TransactionContext =
-  createContext<TransactionContextType | null>(
-    null
-  );
+  createContext<
+    TransactionContextType | undefined
+  >(undefined);
 
-interface TransactionProviderProps {
-  children: ReactNode;
-}
-
-export function TransactionProvider({
+export const TransactionProvider = ({
   children,
-}: TransactionProviderProps) {
-  const [transactions, setTransactions] =
-    useState<Transaction[]>([]);
-
-  // FETCH TRANSACTIONS
-  useEffect(() => {
-    fetchTransactions();
-  }, []);
+}: {
+  children: React.ReactNode;
+}) => {
+  const [
+    transactions,
+    setTransactions,
+  ] = useState<Transaction[]>(
+    []
+  );
 
   const fetchTransactions =
     async () => {
@@ -63,32 +62,28 @@ export function TransactionProvider({
       }
     };
 
-  // ADD TRANSACTION
   const addTransaction =
     async (
-      title: string,
-      amount: number
+      transaction: Transaction
     ) => {
       try {
         const response =
           await api.post(
             "/transactions",
-            {
-              title,
-              amount,
-            }
+            transaction
           );
 
-        setTransactions([
-          response.data,
-          ...transactions,
-        ]);
+        setTransactions(
+          [
+            response.data,
+            ...transactions,
+          ]
+        );
       } catch (error) {
         console.log(error);
       }
     };
 
-  // DELETE TRANSACTION
   const deleteTransaction =
     async (id: string) => {
       try {
@@ -99,7 +94,8 @@ export function TransactionProvider({
         setTransactions(
           transactions.filter(
             (transaction) =>
-              transaction._id !== id
+              transaction._id !==
+              id
           )
         );
       } catch (error) {
@@ -107,28 +103,35 @@ export function TransactionProvider({
       }
     };
 
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
+
   return (
     <TransactionContext.Provider
       value={{
         transactions,
         addTransaction,
         deleteTransaction,
+        fetchTransactions,
       }}
     >
       {children}
     </TransactionContext.Provider>
   );
-}
+};
 
-export function useTransactions() {
-  const context =
-    useContext(TransactionContext);
-
-  if (!context) {
-    throw new Error(
-      "useTransactions must be used within TransactionProvider"
+export const useTransactions =
+  () => {
+    const context = useContext(
+      TransactionContext
     );
-  }
 
-  return context;
-}
+    if (!context) {
+      throw new Error(
+        "useTransactions must be used within TransactionProvider"
+      );
+    }
+
+    return context;
+  };

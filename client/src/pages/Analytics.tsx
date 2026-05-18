@@ -1,7 +1,4 @@
-import {
-  useEffect,
-  useState,
-} from "react";
+import React from "react";
 
 import {
   PieChart,
@@ -10,63 +7,48 @@ import {
   Tooltip,
   ResponsiveContainer,
   BarChart,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
-  Bar,
 } from "recharts";
 
-import MainLayout from "../layouts/MainLayout";
+import { useTransactions } from "../context/TransactionContext";
 
-import api from "../services/api";
-
-interface Transaction {
-  _id: string;
-  title: string;
-  amount: number;
-  category?: string;
-}
+const COLORS = [
+  "#22c55e",
+  "#ef4444",
+  "#3b82f6",
+  "#eab308",
+  "#a855f7",
+  "#f97316",
+];
 
 function Analytics() {
-  const [transactions, setTransactions] =
-    useState<Transaction[]>([]);
-
-  useEffect(() => {
-    fetchTransactions();
-  }, []);
-
-  const fetchTransactions = async () => {
-    try {
-      const response = await api.get(
-        "/transactions"
-      );
-
-      setTransactions(response.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  /* INCOME */
+  const { transactions } =
+    useTransactions();
 
   const income = transactions
-    .filter((t) => t.amount > 0)
+    .filter(
+      (transaction) =>
+        transaction.amount > 0
+    )
     .reduce(
-      (acc, t) => acc + t.amount,
+      (acc, transaction) =>
+        acc + transaction.amount,
       0
     );
-
-  /* EXPENSES */
 
   const expenses = transactions
-    .filter((t) => t.amount < 0)
+    .filter(
+      (transaction) =>
+        transaction.amount < 0
+    )
     .reduce(
-      (acc, t) =>
-        acc + Math.abs(t.amount),
+      (acc, transaction) =>
+        acc + Math.abs(transaction.amount),
       0
     );
-
-  /* PIE DATA */
 
   const pieData = [
     {
@@ -79,95 +61,83 @@ function Analytics() {
     },
   ];
 
-  const COLORS = [
-    "#22c55e",
-    "#ef4444",
-  ];
+  const categoryTotals:
+    Record<string, number> = {};
 
-  /* BAR DATA */
-
-  const barData = transactions.map(
-    (transaction) => ({
-      name: transaction.title,
-      amount: transaction.amount,
-    })
-  );
-
-  /* CATEGORY ANALYTICS */
-
-  const expenseTransactions =
-    transactions.filter(
+  transactions
+    .filter(
       (transaction) =>
         transaction.amount < 0
-    );
-
-  const categoryTotals: {
-    [key: string]: number;
-  } = {};
-
-  expenseTransactions.forEach(
-    (transaction) => {
+    )
+    .forEach((transaction) => {
       const category =
         transaction.category ||
         "Other";
 
-      categoryTotals[category] =
-        (categoryTotals[
+      if (
+        categoryTotals[category]
+      ) {
+        categoryTotals[
           category
-        ] || 0) +
-        Math.abs(
+        ] += Math.abs(
           transaction.amount
         );
-    }
-  );
+      } else {
+        categoryTotals[
+          category
+        ] = Math.abs(
+          transaction.amount
+        );
+      }
+    });
 
   const categoryData =
-    Object.keys(categoryTotals).map(
-      (category) => ({
+    Object.entries(
+      categoryTotals
+    ).map(
+      ([category, amount]) => ({
         name: category,
-        value:
-          categoryTotals[
-            category
-          ],
+        value: amount,
       })
     );
 
   return (
-    <MainLayout>
-      <h1 className="text-3xl md:text-4xl font-bold mb-8">
+    <div className="p-6 text-white">
+      <h1 className="text-4xl font-bold mb-8">
         Analytics
       </h1>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-        {/* INCOME VS EXPENSES */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Income vs Expenses */}
 
-        <div className="bg-zinc-900 p-4 md:p-6 rounded-2xl min-h-[400px]">
-          <h2 className="text-xl md:text-2xl font-bold mb-4">
+        <div className="bg-zinc-900 rounded-2xl p-6 shadow-lg h-[400px]">
+          <h2 className="text-2xl font-bold mb-6">
             Income vs Expenses
           </h2>
 
           <ResponsiveContainer
             width="100%"
-            height={300}
+            height="85%"
           >
             <PieChart>
               <Pie
                 data={pieData}
                 dataKey="value"
                 nameKey="name"
-                outerRadius={100}
+                outerRadius={120}
                 label
               >
                 {pieData.map(
                   (
-                    entry,
+                    _entry,
                     index
                   ) => (
                     <Cell
-                      key={index}
+                      key={`cell-${index}`}
                       fill={
                         COLORS[
-                          index
+                          index %
+                            COLORS.length
                         ]
                       }
                     />
@@ -180,72 +150,76 @@ function Analytics() {
           </ResponsiveContainer>
         </div>
 
-        {/* CATEGORY PIE CHART */}
+        {/* Expenses by Category */}
 
-        <div className="bg-zinc-900 p-4 md:p-6 rounded-2xl min-h-[400px]">
-          <h2 className="text-xl md:text-2xl font-bold mb-4">
+        <div className="bg-zinc-900 rounded-2xl p-6 shadow-lg h-[400px]">
+          <h2 className="text-2xl font-bold mb-6">
             Expenses by Category
           </h2>
 
-          <ResponsiveContainer
-            width="100%"
-            height={300}
-          >
-            <PieChart>
-              <Pie
-                data={categoryData}
-                dataKey="value"
-                nameKey="name"
-                outerRadius={100}
-                label
-              >
-                {categoryData.map(
-                  (
-                    entry,
-                    index
-                  ) => (
-                    <Cell
-                      key={index}
-                      fill={
-                        [
-                          "#ef4444",
-                          "#f97316",
-                          "#eab308",
-                          "#22c55e",
-                          "#3b82f6",
-                          "#a855f7",
-                          "#ec4899",
-                        ][
-                          index % 7
-                        ]
-                      }
-                    />
-                  )
-                )}
-              </Pie>
+          {categoryData.length ===
+          0 ? (
+            <div className="flex items-center justify-center h-[300px] text-zinc-400">
+              No expense categories yet
+            </div>
+          ) : (
+            <ResponsiveContainer
+              width="100%"
+              height="85%"
+            >
+              <PieChart>
+                <Pie
+                  data={
+                    categoryData
+                  }
+                  dataKey="value"
+                  nameKey="name"
+                  outerRadius={120}
+                  label
+                >
+                  {categoryData.map(
+                    (
+                      _entry,
+                      index
+                    ) => (
+                      <Cell
+                        key={`category-cell-${index}`}
+                        fill={
+                          COLORS[
+                            index %
+                              COLORS.length
+                          ]
+                        }
+                      />
+                    )
+                  )}
+                </Pie>
 
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          )}
         </div>
 
-        {/* TRANSACTIONS OVERVIEW */}
+        {/* Transactions Overview */}
 
-        <div className="bg-zinc-900 p-4 md:p-6 rounded-2xl min-h-[400px] xl:col-span-2">
-          <h2 className="text-xl md:text-2xl font-bold mb-4">
+        <div className="bg-zinc-900 rounded-2xl p-6 shadow-lg h-[400px] lg:col-span-2">
+          <h2 className="text-2xl font-bold mb-6">
             Transactions Overview
           </h2>
 
           <ResponsiveContainer
             width="100%"
-            height={300}
+            height="85%"
           >
-            <BarChart data={barData}>
-              <CartesianGrid
-                strokeDasharray="3 3"
-              />
+            <BarChart
+              data={transactions}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
 
-              <XAxis dataKey="name" />
+              <XAxis
+                dataKey="title"
+              />
 
               <YAxis />
 
@@ -259,7 +233,7 @@ function Analytics() {
           </ResponsiveContainer>
         </div>
       </div>
-    </MainLayout>
+    </div>
   );
 }
 
