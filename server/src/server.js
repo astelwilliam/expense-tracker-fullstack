@@ -1,38 +1,70 @@
 const express = require("express");
+
+const mongoose = require("mongoose");
+
 const cors = require("cors");
+
 const dotenv = require("dotenv");
 
-const connectDB = require("./config/db");
-
-const transactionRoutes = require(
-  "./routes/transactionRoutes"
-);
+dotenv.config();
 
 const authRoutes = require(
   "./routes/authRoutes"
 );
 
-dotenv.config();
-
-connectDB();
+const transactionRoutes = require(
+  "./routes/transactionRoutes"
+);
 
 const app = express();
 
-app.use(cors());
+/* MIDDLEWARE */
+
+app.use(
+  cors({
+    origin: "*",
+  })
+);
 
 app.use(express.json());
 
-app.use(
-  "/api/transactions",
-  transactionRoutes
-);
+/* ROUTES */
 
 app.use(
   "/api/auth",
   authRoutes
 );
 
-const PORT = process.env.PORT || 5000;
+app.use(
+  "/api/transactions",
+  transactionRoutes
+);
+
+/* TEST ROUTE */
+
+app.get("/", (req, res) => {
+  res.send(
+    "Expense Tracker API Running..."
+  );
+});
+
+/* DATABASE CONNECTION */
+
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log(
+      "MongoDB Connected"
+    );
+  })
+  .catch((error) => {
+    console.log(error);
+  });
+
+/* SERVER */
+
+const PORT =
+  process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(
