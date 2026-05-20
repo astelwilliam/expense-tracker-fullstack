@@ -77,7 +77,7 @@ function Dashboard() {
         <div className="space-y-4">
           {transactions.map((transaction) => (
             <div
-              key={transaction.id}
+              key={transaction._id}
               className="flex justify-between border-b border-zinc-800 pb-3"
             >
               <span>{transaction.title}</span>
