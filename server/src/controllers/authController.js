@@ -1,25 +1,14 @@
-import jwt from "jsonwebtoken";
-
 export const signupUser = async (
   req,
   res
 ) => {
   try {
-    const { name, email, password } =
+    const { name, email } =
       req.body;
 
-    const token = jwt.sign(
-      {
-        email,
-      },
-      "secretkey",
-      {
-        expiresIn: "7d",
-      }
-    );
-
     res.json({
-      token,
+      success: true,
+      token: "demo-token",
       user: {
         name,
         email,
@@ -39,20 +28,15 @@ export const loginUser = async (
   res
 ) => {
   try {
-    const { email } = req.body;
-
-    const token = jwt.sign(
-      {
-        email,
-      },
-      "secretkey",
-      {
-        expiresIn: "7d",
-      }
-    );
+    const { email } =
+      req.body;
 
     res.json({
-      token,
+      success: true,
+      token: "demo-token",
+      user: {
+        email,
+      },
     });
   } catch (error) {
     console.log(error);
