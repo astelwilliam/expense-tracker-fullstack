@@ -36,14 +36,7 @@ app.use(
   transactionRoutes
 );
 
-app.use((req, res) => {
-  res.status(404).send(
-    `Route not found: ${req.originalUrl}`
-  );
-});
-
-const PORT =
-  process.env.PORT || 10000;
+const PORT = process.env.PORT || 10000;
 
 app.listen(PORT, () => {
   console.log(
