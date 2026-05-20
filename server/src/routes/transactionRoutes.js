@@ -11,28 +11,12 @@ import protect from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.get(
-  "/",
-  protect,
-  getTransactions
-);
+router.get("/", protect, getTransactions);
 
-router.post(
-  "/",
-  protect,
-  addTransaction
-);
+router.post("/", protect, addTransaction);
 
-router.put(
-  "/:id",
-  protect,
-  updateTransaction
-);
+router.put("/:id", protect, updateTransaction);
 
-router.delete(
-  "/:id",
-  protect,
-  deleteTransaction
-);
+router.delete("/:id", protect, deleteTransaction);
 
 export default router;

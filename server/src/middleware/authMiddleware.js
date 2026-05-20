@@ -1,47 +1,29 @@
 import jwt from "jsonwebtoken";
 
-const protect = (
-  req,
-  res,
-  next
-) => {
-  const authHeader =
-    req.headers.authorization;
-
-  if (
-    !authHeader ||
-    !authHeader.startsWith(
-      "Bearer "
-    )
-  ) {
-    return res
-      .status(401)
-      .json({
-        message:
-          "Not authorized",
-      });
-  }
-
+const protect = (req, res, next) => {
   try {
-    const token =
-      authHeader.split(
-        " "
-      )[1];
+    const authHeader =
+      req.headers.authorization;
 
-    const decoded =
-      jwt.verify(
-        token,
-        process.env.JWT_SECRET ||
-          "secret123"
-      );
+    if (!authHeader) {
+      return res.status(401).json({
+        message: "No token provided",
+      });
+    }
+
+    const token = authHeader.split(" ")[1];
+
+    const decoded = jwt.verify(
+      token,
+      "secretkey"
+    );
 
     req.user = decoded;
 
     next();
   } catch (error) {
     res.status(401).json({
-      message:
-        "Token invalid",
+      message: "Invalid token",
     });
   }
 };
