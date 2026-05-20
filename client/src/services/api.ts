@@ -1,11 +1,8 @@
 import axios from "axios";
 
-const API = axios.create({
-  baseURL: "https://expense-tracker-fullstack-dvfm.onrender.com/api",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  withCredentials: true,
+const api = axios.create({
+  baseURL:
+    "https://expense-tracker-fullstack-dwfm.onrender.com/api",
 });
 
-export default API;
+export default api;
