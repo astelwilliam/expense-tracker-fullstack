@@ -27,3 +27,15 @@ const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+app.use("/api/auth", authRoutes);
+app.use("/api/transactions", transactionRoutes);
+
+app.use((req, res) => {
+  res.status(404).send(`Route not found: ${req.originalUrl}`);
+});
+
+const PORT = process.env.PORT || 10000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
