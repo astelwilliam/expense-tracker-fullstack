@@ -1,25 +1,26 @@
-import { ReactNode } from "react";
+import React from "react";
 
 interface AuthLayoutProps {
-  title: string;
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
-function AuthLayout({
-  title,
+const AuthLayout = ({
   children,
-}: AuthLayoutProps) {
+}: AuthLayoutProps) => {
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
-        <h1 className="text-4xl font-bold text-white mb-8 text-center">
-          {title}
-        </h1>
-
-        {children}
-      </div>
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        background:
+          "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
+      }}
+    >
+      {children}
     </div>
   );
-}
+};
 
 export default AuthLayout;

@@ -1,111 +1,54 @@
-import {
+import React, {
   createContext,
   useContext,
-  useEffect,
   useState,
-  ReactNode,
 } from "react";
 
 interface Transaction {
-  id: number;
+  _id?: string;
   title: string;
   amount: number;
+  type: string;
+  category: string;
+  date: string;
 }
 
 interface TransactionContextType {
   transactions: Transaction[];
-  addTransaction: (
-    title: string,
-    amount: number
-  ) => void;
-  deleteTransaction: (id: number) => void;
+  setTransactions: React.Dispatch<
+    React.SetStateAction<Transaction[]>
+  >;
 }
 
 const TransactionContext =
-  createContext<TransactionContextType | null>(
-    null
-  );
+  createContext<
+    TransactionContextType | undefined
+  >(undefined);
 
-interface TransactionProviderProps {
-  children: ReactNode;
-}
-
-export function TransactionProvider({
+export const TransactionProvider = ({
   children,
-}: TransactionProviderProps) {
+}: {
+  children: React.ReactNode;
+}) => {
   const [transactions, setTransactions] =
-    useState<Transaction[]>(() => {
-      const savedTransactions =
-        localStorage.getItem("transactions");
-
-      return savedTransactions
-        ? JSON.parse(savedTransactions)
-        : [
-            {
-              id: 1,
-              title: "Groceries",
-              amount: -2000,
-            },
-            {
-              id: 2,
-              title: "Salary",
-              amount: 40000,
-            },
-            {
-              id: 3,
-              title: "Internet Bill",
-              amount: -1200,
-            },
-          ];
-    });
-
-  useEffect(() => {
-    localStorage.setItem(
-      "transactions",
-      JSON.stringify(transactions)
-    );
-  }, [transactions]);
-
-  const addTransaction = (
-    title: string,
-    amount: number
-  ) => {
-    const newTransaction = {
-      id: Date.now(),
-      title,
-      amount,
-    };
-
-    setTransactions([
-      newTransaction,
-      ...transactions,
-    ]);
-  };
-
-  const deleteTransaction = (id: number) => {
-    setTransactions(
-      transactions.filter(
-        (transaction) => transaction.id !== id
-      )
-    );
-  };
+    useState<Transaction[]>([]);
 
   return (
     <TransactionContext.Provider
       value={{
         transactions,
-        addTransaction,
-        deleteTransaction,
+        setTransactions,
       }}
     >
       {children}
     </TransactionContext.Provider>
   );
-}
+};
 
-export function useTransactions() {
-  const context =
-    useContext(TransactionContext);
+export const useTransactions = () => {
+  const context = useContext(
+    TransactionContext
+  );
 
   if (!context) {
     throw new Error(
@@ -114,4 +57,4 @@ export function useTransactions() {
   }
 
   return context;
-}
+};

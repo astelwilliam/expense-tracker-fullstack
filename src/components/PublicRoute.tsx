@@ -1,19 +1,25 @@
-import { Navigate } from "react-router-dom";
+import React from "react";
+import {
+  Navigate,
+} from "react-router-dom";
 
-import { isAuthenticated } from "../utils/auth";
-
-interface Props {
+interface PublicRouteProps {
   children: React.ReactNode;
 }
 
-function PublicRoute({
+const PublicRoute = ({
   children,
-}: Props) {
-  if (isAuthenticated()) {
-    return <Navigate to="/" />;
+}: PublicRouteProps) => {
+  const token =
+    localStorage.getItem("token");
+
+  if (token) {
+    return (
+      <Navigate to="/dashboard" />
+    );
   }
 
-  return children;
-}
+  return <>{children}</>;
+};
 
 export default PublicRoute;

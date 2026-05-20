@@ -1,4 +1,4 @@
-import MainLayout from "../layouts/MainLayout";
+import React from "react";
 
 import {
   PieChart,
@@ -6,31 +6,56 @@ import {
   Cell,
   Tooltip,
   ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
 } from "recharts";
 
+import MainLayout from "../layouts/MainLayout";
+
 import { useTransactions } from "../context/TransactionContext";
+
+const COLORS = [
+  "#22c55e",
+  "#ef4444",
+  "#3b82f6",
+  "#eab308",
+  "#a855f7",
+  "#f97316",
+];
 
 function Analytics() {
   const { transactions } =
     useTransactions();
 
   const income = transactions
-    .filter((transaction) => transaction.amount > 0)
+    .filter(
+      (transaction) =>
+        transaction.amount > 0
+    )
     .reduce(
-      (total, transaction) =>
-        total + transaction.amount,
+      (acc, transaction) =>
+        acc + transaction.amount,
       0
     );
 
   const expenses = transactions
-    .filter((transaction) => transaction.amount < 0)
+    .filter(
+      (transaction) =>
+        transaction.amount < 0
+    )
     .reduce(
-      (total, transaction) =>
-        total + Math.abs(transaction.amount),
+      (acc, transaction) =>
+        acc +
+        Math.abs(
+          transaction.amount
+        ),
       0
     );
 
-  const data = [
+  const pieData = [
     {
       name: "Income",
       value: income,
@@ -41,82 +66,167 @@ function Analytics() {
     },
   ];
 
-  const COLORS = [
-    "#22c55e",
-    "#ef4444",
-  ];
+  const categoryTotals:
+    Record<string, number> = {};
+
+  transactions
+    .filter(
+      (transaction) =>
+        transaction.amount < 0
+    )
+    .forEach((transaction) => {
+      const category =
+        transaction.category ||
+        "Other";
+
+      categoryTotals[category] =
+        (categoryTotals[
+          category
+        ] || 0) +
+        Math.abs(
+          transaction.amount
+        );
+    });
+
+  const categoryData =
+    Object.entries(
+      categoryTotals
+    ).map(
+      ([category, amount]) => ({
+        name: category,
+        value: amount,
+      })
+    );
 
   return (
     <MainLayout>
-      <h1 className="text-4xl font-bold mb-8">
-        Analytics
-      </h1>
+      <div className="p-6 text-white">
+        <h1 className="text-4xl font-bold mb-8">
+          Analytics
+        </h1>
 
-      <div className="grid grid-cols-2 gap-8">
-        <div className="bg-zinc-900 p-6 rounded-2xl h-[400px]">
-          <h2 className="text-2xl font-bold mb-6">
-            Income vs Expenses
-          </h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Income vs Expenses */}
 
-          <ResponsiveContainer
-            width="100%"
-            height="100%"
-          >
-            <PieChart>
-              <Pie
-                data={data}
-                dataKey="value"
-                outerRadius={120}
-                label
+          <div className="bg-zinc-900 rounded-2xl p-6 shadow-lg h-[400px]">
+            <h2 className="text-2xl font-bold mb-6">
+              Income vs Expenses
+            </h2>
+
+            <ResponsiveContainer
+              width="100%"
+              height="85%"
+            >
+              <PieChart>
+                <Pie
+                  data={pieData}
+                  dataKey="value"
+                  nameKey="name"
+                  outerRadius={120}
+                  label
+                >
+                  {pieData.map(
+                    (
+                      _entry,
+                      index
+                    ) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={
+                          COLORS[
+                            index %
+                              COLORS.length
+                          ]
+                        }
+                      />
+                    )
+                  )}
+                </Pie>
+
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Expenses by Category */}
+
+          <div className="bg-zinc-900 rounded-2xl p-6 shadow-lg h-[400px]">
+            <h2 className="text-2xl font-bold mb-6">
+              Expenses by Category
+            </h2>
+
+            {categoryData.length ===
+            0 ? (
+              <div className="flex items-center justify-center h-[300px] text-zinc-400">
+                No expense categories yet
+              </div>
+            ) : (
+              <ResponsiveContainer
+                width="100%"
+                height="85%"
               >
-                {data.map((entry, index) => (
-                  <Cell
-                    key={index}
-                    fill={COLORS[index]}
-                  />
-                ))}
-              </Pie>
+                <PieChart>
+                  <Pie
+                    data={
+                      categoryData
+                    }
+                    dataKey="value"
+                    nameKey="name"
+                    outerRadius={120}
+                    label
+                  >
+                    {categoryData.map(
+                      (
+                        _entry,
+                        index
+                      ) => (
+                        <Cell
+                          key={`category-cell-${index}`}
+                          fill={
+                            COLORS[
+                              index %
+                                COLORS.length
+                            ]
+                          }
+                        />
+                      )
+                    )}
+                  </Pie>
 
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
+          </div>
 
-        <div className="bg-zinc-900 p-6 rounded-2xl">
-          <h2 className="text-2xl font-bold mb-6">
-            Summary
-          </h2>
+          {/* Transactions Overview */}
 
-          <div className="space-y-6">
-            <div>
-              <p className="text-zinc-400">
-                Total Income
-              </p>
+          <div className="bg-zinc-900 rounded-2xl p-6 shadow-lg h-[400px] lg:col-span-2">
+            <h2 className="text-2xl font-bold mb-6">
+              Transactions Overview
+            </h2>
 
-              <h3 className="text-3xl font-bold text-green-500">
-                ₹{income}
-              </h3>
-            </div>
+            <ResponsiveContainer
+              width="100%"
+              height="85%"
+            >
+              <BarChart
+                data={transactions}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
 
-            <div>
-              <p className="text-zinc-400">
-                Total Expenses
-              </p>
+                <XAxis dataKey="title" />
 
-              <h3 className="text-3xl font-bold text-red-500">
-                ₹{expenses}
-              </h3>
-            </div>
+                <YAxis />
 
-            <div>
-              <p className="text-zinc-400">
-                Net Balance
-              </p>
+                <Tooltip />
 
-              <h3 className="text-3xl font-bold">
-                ₹{income - expenses}
-              </h3>
-            </div>
+                <Bar
+                  dataKey="amount"
+                  fill="#3b82f6"
+                />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </div>
       </div>

@@ -1,49 +1,24 @@
+import React from "react";
 import {
   BrowserRouter,
   Routes,
   Route,
+  Navigate,
 } from "react-router-dom";
 
-import Dashboard from "./pages/Dashboard";
-import Transactions from "./pages/Transactions";
-import Analytics from "./pages/Analytics";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import Dashboard from "./pages/Dashboard";
+import Analytics from "./pages/Analytics";
 
-import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
+import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/transactions"
-          element={
-            <ProtectedRoute>
-              <Transactions />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/analytics"
-          element={
-            <ProtectedRoute>
-              <Analytics />
-            </ProtectedRoute>
-          }
-        />
-
+        {/* Public Routes */}
         <Route
           path="/login"
           element={
@@ -60,6 +35,31 @@ function App() {
               <Signup />
             </PublicRoute>
           }
+        />
+
+        {/* Private Routes */}
+        <Route
+          path="/dashboard"
+          element={
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/analytics"
+          element={
+            <PrivateRoute>
+              <Analytics />
+            </PrivateRoute>
+          }
+        />
+
+        {/* Default Route */}
+        <Route
+          path="/"
+          element={<Navigate to="/login" />}
         />
       </Routes>
     </BrowserRouter>
