@@ -1,22 +1,11 @@
 import axios from "axios";
 
-const api = axios.create({
-  baseURL:
-    "https://expense-tracker-fullstack.onrender.com/api",
+const API = axios.create({
+  baseURL: "https://expense-tracker-fullstack-dvfm.onrender.com/api",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  withCredentials: true,
 });
 
-api.interceptors.request.use(
-  (config) => {
-    const token =
-      localStorage.getItem("token");
-
-    if (token) {
-      config.headers.Authorization =
-        `Bearer ${token}`;
-    }
-
-    return config;
-  }
-);
-
-export default api;
+export default API;
