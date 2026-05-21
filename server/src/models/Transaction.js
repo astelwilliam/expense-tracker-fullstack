@@ -1,8 +1,18 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const transactionSchema =
   new mongoose.Schema(
     {
+      user: {
+        type:
+          mongoose.Schema.Types
+            .ObjectId,
+
+        ref: "User",
+
+        required: true,
+      },
+
       title: {
         type: String,
         required: true,
@@ -16,20 +26,14 @@ const transactionSchema =
       category: {
         type: String,
         required: true,
-        enum: [
-          "Food",
-          "Salary",
-          "Shopping",
-          "Bills",
-          "Travel",
-          "Entertainment",
-          "Other",
-        ],
       },
 
-      user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+      type: {
+        type: String,
+        enum: [
+          "income",
+          "expense",
+        ],
         required: true,
       },
     },
@@ -38,7 +42,11 @@ const transactionSchema =
     }
   );
 
-module.exports = mongoose.model(
-  "Transaction",
-  transactionSchema
-);
+const Transaction =
+  mongoose.model(
+    "Transaction",
+    transactionSchema
+  );
+
+export default Transaction;
+
