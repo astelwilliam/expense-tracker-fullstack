@@ -1,39 +1,19 @@
-import express from "express";
-import cors from "cors";
-import dotenv from "dotenv";
-
+import "dotenv/config";
+import { createApp } from "./app.js";
 import connectDB from "./config/db.js";
 
-import authRoutes from "./routes/authRoutes.js";
-import transactionRoutes from "./routes/transactionRoutes.js";
-
-dotenv.config();
-
-connectDB();
-
-const app = express();
-
-app.use(cors());
-
-app.use(express.json());
-
-app.get("/", (req, res) => {
-  res.send("Backend running");
+async function main() {
+  if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+    throw new Error("JWT_SECRET must be set to at least 32 characters");
+  }
+  if (process.env.NODE_ENV === "production" && !process.env.CLIENT_ORIGIN) {
+    throw new Error("CLIENT_ORIGIN is required in production");
+  }
+  await connectDB();
+  const port = process.env.PORT || 10000;
+  createApp().listen(port, () => console.log(`Server listening on port ${port}`));
+}
+main().catch((err) => {
+  console.error("Startup failed:", err.message);
+  process.exit(1);
 });
-
-app.use("/api/auth", authRoutes);
-
-app.use(
-  "/api/transactions",
-  transactionRoutes
-);
-
-const PORT =
-  process.env.PORT || 10000;
-
-app.listen(PORT, () => {
-  console.log(
-    `Server running on port ${PORT}`
-  );
-});
-

@@ -10,12 +10,12 @@ function StatCard({
   color = "text-white",
 }: StatCardProps) {
   return (
-    <div className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800 hover:border-zinc-700 transition">
-      <h2 className="text-zinc-400 mb-2">
+    <div className="fin-card p-5 md:p-6 rounded-2xl transition duration-200 hover:-translate-y-0.5">
+      <h2 className="text-zinc-400 text-sm mb-3">
         {title}
       </h2>
 
-      <p className={`text-3xl font-bold ${color}`}>
+      <p className={`text-2xl md:text-3xl font-bold tracking-tight ${color}`}>
         {amount}
       </p>
     </div>
