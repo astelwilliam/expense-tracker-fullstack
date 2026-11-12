@@ -3,6 +3,7 @@ import {
   Receipt,
   BarChart3,
   UploadCloud,
+  Sparkles,
   LogIn,
   UserPlus,
   LogOut,
@@ -44,6 +45,7 @@ function Sidebar() {
       protected: true,
     },
     { name: "Smart Import", path: "/smart-import", icon: <UploadCloud size={18} />, protected: true },
+    { name: "Smart Assist", path: "/smart-assist", icon: <Sparkles size={18} />, protected: true },
     {
       name: "Transactions",
       path: "/transactions",

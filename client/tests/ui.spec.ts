@@ -30,6 +30,14 @@ test("dashboard and navigation render with mocked account data", async ({ page }
   await page.screenshot({ path: testInfo.outputPath("analytics.png"), fullPage: true });
 });
 
+test("Smart Assist navigation opens the accessible Coming Soon page", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: "Smart Assist" }).click();
+  await expect(page).toHaveURL(/\/smart-assist$/);
+  await expect(page.getByRole("heading", { name: "Smart Assist — Coming Soon" })).toBeVisible();
+  await expect(page.getByText("Your AI-powered financial assistant is on the way.", { exact: false })).toBeVisible();
+});
+
 test("transactions support search, filters, creation, edit dialog and deletion affordance", async ({ page }, testInfo) => {
   await page.goto("/transactions");
   await expect(page.getByText("Zomato")).toBeVisible();
@@ -49,7 +57,7 @@ test("mobile layout, keyboard focus, and critical axe checks pass", async ({ pag
   await page.getByRole("button", { name: "Browse files" }).focus();
   await page.keyboard.press("Tab");
   await expect.poll(() => page.evaluate(() => document.activeElement?.tagName)).toMatch(/BUTTON|A|INPUT/);
-  for (const path of ["/smart-import", "/", "/transactions", "/analytics"]) {
+  for (const path of ["/smart-import", "/smart-assist", "/", "/transactions", "/analytics"]) {
     await page.goto(path);
     await page.addScriptTag({ path: require.resolve("axe-core/axe.min.js") });
     const results = await page.evaluate(async () => await (window as unknown as { axe: { run: () => Promise<{ violations: Array<{ impact: string | null }> }> } }).axe.run());

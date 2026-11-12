@@ -52,7 +52,8 @@ async function inspect(req,res,next,commit) {
   try {
     const {pending,existing}=await dedupe(transactions,req.user.id);
     if(!commit) return res.json({total:transactions.length,toImport:pending.length,alreadyImported:existing,
-      preview:pending.slice(0,5).map(({id,...row})=>row)});
+      transactionIds:{present:transactions.filter(row=>row.id).length,missing:transactions.filter(row=>!row.id).length},
+      preview:pending.map(({id,...row})=>row)});
     if(pending.length===0) return res.json({imported:0,alreadyImported:existing});
     const inserted=await Transaction.insertMany(pending.map(({id:ignored, ...row})=>({...row,user:req.user.id})), {ordered:true});
     return res.status(201).json({imported:inserted.length,alreadyImported:existing});

@@ -100,6 +100,9 @@ function typeFrom(text) {
   if (/\b(paid|debited|spent|purchase|total|upi)\b/i.test(text)) return "expense";
   return undefined;
 }
+function hasTransactionEvidence(text) {
+  return /\b(paid|sent|debited|credited|received|refund|cashback|purchase|upi|invoice|receipt|transaction|txn|salary)\b/i.test(text);
+}
 function referenceFrom(text) { return text.match(/\b(?:utr|upi\s*(?:ref(?:erence)?|id)?|reference\s*(?:no|id)?|txn\s*(?:id|no)?)\s*[:#-]?\s*([A-Za-z0-9-]{6,})/i)?.[1]; }
 function categoryFrom(text) {
   const rule = categoryRules.find(([, pattern]) => pattern.test(text));
@@ -119,7 +122,9 @@ export function extractCandidates(text) {
     if (!transactionDate) warnings.push("Transaction date was not found.");
     if (!title) warnings.push("Merchant or title was not found.");
     const evidence = [amount, type, transactionDate, title].filter(Boolean).length;
-    return { title, amount, type, transactionDate, category: category.category, categoryReason: category.reason, referenceId, description: cleanText(row).slice(0, 300), confidence: evidence === 4 ? "high" : evidence >= 2 ? "medium" : "low", warnings };
+    const transactionEvidence = hasTransactionEvidence(row);
+    if (!transactionEvidence) warnings.push("No clear transaction wording was found; review this candidate manually.");
+    return { title, amount, type, transactionDate, category: category.category, categoryReason: category.reason, referenceId, description: cleanText(row).slice(0, 300), confidence: evidence === 4 && transactionEvidence ? "high" : evidence >= 2 ? "medium" : "low", warnings };
   }).filter((candidate) => candidate.amount || candidate.title || candidate.transactionDate);
 }
 

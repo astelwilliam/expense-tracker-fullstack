@@ -19,6 +19,9 @@ test("categorizes synthetic UPI and receipt text, including ambiguous rows", () 
   assert.equal(rows[0].category, "Food"); assert.equal(rows[0].type, "expense"); assert.equal(rows[0].transactionDate, "2026-11-10");
   assert.equal(rows[1].category, "Salary"); assert.equal(rows[1].type, "income");
   assert.equal(extractCandidates("Receipt total Rs 125")[0].confidence, "medium");
+  const uiSummary = extractCandidates("Total Balance Rs 49,550 Income Rs 50,000 Expenses Rs 450 10/11/2026");
+  assert.ok(uiSummary.every((row) => row.confidence !== "high"));
+  assert.ok(uiSummary.some((row) => row.warnings.includes("No clear transaction wording was found; review this candidate manually.")));
 });
 
 test("locally OCRs a synthetic UPI screenshot and rejects invalid files", async () => {
