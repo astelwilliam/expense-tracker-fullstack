@@ -1,419 +1,46 @@
-import { useEffect, useState } from "react";
-
+import { useMemo, useState } from "react";
+import type { FormEvent } from "react";
+import { ArrowDownRight, ArrowUpRight, Pencil, Plus, Search, Trash2, X } from "lucide-react";
 import toast from "react-hot-toast";
-
-import api from "../services/api";
-
+import { useTransactions } from "../context/TransactionContext";
+import type { Transaction } from "../context/TransactionContext";
+import { getApiError } from "../services/api";
+import { dateOf, formatINR, signedAmount, todayLocal, typeOf } from "../utils/transactions";
+import type { TransactionType } from "../utils/transactions";
 import MainLayout from "../layouts/MainLayout";
+import TransactionTransfer from "../components/TransactionTransfer";
 
-interface Transaction {
-  _id: string;
-  title: string;
-  amount: number;
-  category: string;
+const categories = ["Food", "Salary", "Shopping", "Bills", "Travel", "Entertainment", "Other"];
+const mark = (category: string) => ({ Food: "🍽", Salary: "✦", Shopping: "⌑", Bills: "▣", Travel: "↗", Entertainment: "◉" }[category] ?? "•");
+type Values = { title: string; amount: string; type: TransactionType; category: string; date: string };
+
+function Form({ values, onChange, onSubmit, busy, label }: { values: Values; onChange: (value: Partial<Values>) => void; onSubmit: (event: FormEvent) => void; busy: boolean; label: string }) {
+  return <form onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2">
+    <label className="text-sm text-zinc-300 sm:col-span-2">Title<input aria-label="Transaction title" required maxLength={120} value={values.title} onChange={(e) => onChange({ title: e.target.value })} className="fin-input mt-1" placeholder="e.g. Dinner with friends" /></label>
+    <label className="text-sm text-zinc-300">Type<select aria-label="Transaction type" value={values.type} onChange={(e) => onChange({ type: e.target.value as TransactionType })} className="fin-input mt-1"><option value="expense">Expense</option><option value="income">Income</option></select></label>
+    <label className="text-sm text-zinc-300">Amount (₹)<input required type="number" min="0.01" max="1000000000" step="0.01" value={values.amount} onChange={(e) => onChange({ amount: e.target.value })} className="fin-input mt-1" placeholder="0.00" /></label>
+    <label className="text-sm text-zinc-300">Category<select value={values.category} onChange={(e) => onChange({ category: e.target.value })} className="fin-input mt-1">{categories.map((name) => <option key={name}>{name}</option>)}</select></label>
+    <label className="text-sm text-zinc-300">Date<input required type="date" value={values.date} onChange={(e) => onChange({ date: e.target.value })} className="fin-input mt-1" /></label>
+    <button disabled={busy} className="fin-button fin-button-primary sm:col-span-2">{busy ? "Saving…" : label}</button>
+  </form>;
 }
 
-const categories = [
-  "Food",
-  "Salary",
-  "Shopping",
-  "Bills",
-  "Travel",
-  "Entertainment",
-  "Other",
-];
-
-function Transactions() {
-  const [transactions, setTransactions] =
-    useState<Transaction[]>([]);
-
-  const [title, setTitle] =
-    useState("");
-
-  const [amount, setAmount] =
-    useState("");
-
-  const [category, setCategory] =
-    useState("Other");
-
-  const [editingId, setEditingId] =
-    useState<string | null>(null);
-
-  const [editTitle, setEditTitle] =
-    useState("");
-
-  const [editAmount, setEditAmount] =
-    useState("");
-
-  const [editCategory, setEditCategory] =
-    useState("Other");
-
-  const [isAdding, setIsAdding] =
-    useState(false);
-
-  const [isUpdating, setIsUpdating] =
-    useState(false);
-
-  const [deletingId, setDeletingId] =
-    useState<string | null>(null);
-
-  const fetchTransactions = async () => {
-    try {
-      const response = await api.get(
-        "/transactions"
-      );
-
-      setTransactions(response.data);
-    } catch (error) {
-      toast.error(
-        "Failed to load transactions"
-      );
-    }
-  };
-
-  useEffect(() => {
-    fetchTransactions();
-  }, []);
-
-  const handleSubmit = async (
-    e: React.FormEvent
-  ) => {
-    e.preventDefault();
-
-    try {
-      setIsAdding(true);
-
-      await api.post(
-        "/transactions",
-        {
-          title,
-          amount: Number(amount),
-          category,
-        }
-      );
-
-      toast.success(
-        "Transaction added"
-      );
-
-      setTitle("");
-
-      setAmount("");
-
-      setCategory("Other");
-
-      fetchTransactions();
-
-      setIsAdding(false);
-    } catch (error) {
-      setIsAdding(false);
-
-      toast.error(
-        "Failed to add transaction"
-      );
-    }
-  };
-
-  const handleDelete = async (
-    id: string
-  ) => {
-    try {
-      setDeletingId(id);
-
-      await api.delete(
-        `/transactions/${id}`
-      );
-
-      toast.success(
-        "Transaction deleted"
-      );
-
-      fetchTransactions();
-
-      setDeletingId(null);
-    } catch (error) {
-      setDeletingId(null);
-
-      toast.error(
-        "Failed to delete transaction"
-      );
-    }
-  };
-
-  const startEditing = (
-    transaction: Transaction
-  ) => {
-    setEditingId(transaction._id);
-
-    setEditTitle(transaction.title);
-
-    setEditAmount(
-      transaction.amount.toString()
-    );
-
-    setEditCategory(
-      transaction.category
-    );
-  };
-
-  const cancelEditing = () => {
-    setEditingId(null);
-
-    setEditTitle("");
-
-    setEditAmount("");
-
-    setEditCategory("Other");
-  };
-
-  const handleUpdate = async (
-    id: string
-  ) => {
-    try {
-      setIsUpdating(true);
-
-      await api.put(
-        `/transactions/${id}`,
-        {
-          title: editTitle,
-          amount:
-            Number(editAmount),
-          category: editCategory,
-        }
-      );
-
-      toast.success(
-        "Transaction updated"
-      );
-
-      setEditingId(null);
-
-      fetchTransactions();
-
-      setIsUpdating(false);
-    } catch (error) {
-      setIsUpdating(false);
-
-      toast.error(
-        "Failed to update transaction"
-      );
-    }
-  };
-
-  return (
-    <MainLayout>
-      <h1 className="text-3xl md:text-4xl font-bold mb-6">
-        Transactions
-      </h1>
-
-      {/* ADD FORM */}
-
-      <form
-        onSubmit={handleSubmit}
-        className="bg-zinc-900 p-4 md:p-6 rounded-2xl mb-6 space-y-4"
-      >
-        <input
-          type="text"
-          placeholder="Title"
-          value={title}
-          onChange={(e) =>
-            setTitle(e.target.value)
-          }
-          className="w-full p-3 rounded-xl bg-zinc-800 text-white"
-          required
-        />
-
-        <input
-          type="number"
-          placeholder="Amount"
-          value={amount}
-          onChange={(e) =>
-            setAmount(e.target.value)
-          }
-          className="w-full p-3 rounded-xl bg-zinc-800 text-white"
-          required
-        />
-
-        <select
-          value={category}
-          onChange={(e) =>
-            setCategory(e.target.value)
-          }
-          className="w-full p-3 rounded-xl bg-zinc-800 text-white"
-        >
-          {categories.map((cat) => (
-            <option
-              key={cat}
-              value={cat}
-            >
-              {cat}
-            </option>
-          ))}
-        </select>
-
-        <button
-          type="submit"
-          disabled={isAdding}
-          className="bg-green-500 hover:bg-green-600 disabled:opacity-50 px-5 py-3 rounded-xl font-bold transition"
-        >
-          {isAdding
-            ? "Adding..."
-            : "Add Transaction"}
-        </button>
-      </form>
-
-      {/* TRANSACTIONS */}
-
-      <div className="space-y-4">
-        {transactions.map(
-          (transaction) => (
-            <div
-              key={transaction._id}
-              className="bg-zinc-900 p-4 rounded-xl"
-            >
-              {editingId ===
-              transaction._id ? (
-                <div className="space-y-4">
-                  <input
-                    type="text"
-                    value={editTitle}
-                    onChange={(e) =>
-                      setEditTitle(
-                        e.target.value
-                      )
-                    }
-                    className="w-full p-3 rounded-xl bg-zinc-800 text-white"
-                  />
-
-                  <input
-                    type="number"
-                    value={editAmount}
-                    onChange={(e) =>
-                      setEditAmount(
-                        e.target.value
-                      )
-                    }
-                    className="w-full p-3 rounded-xl bg-zinc-800 text-white"
-                  />
-
-                  <select
-                    value={
-                      editCategory
-                    }
-                    onChange={(e) =>
-                      setEditCategory(
-                        e.target.value
-                      )
-                    }
-                    className="w-full p-3 rounded-xl bg-zinc-800 text-white"
-                  >
-                    {categories.map(
-                      (cat) => (
-                        <option
-                          key={cat}
-                          value={cat}
-                        >
-                          {cat}
-                        </option>
-                      )
-                    )}
-                  </select>
-
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() =>
-                        handleUpdate(
-                          transaction._id
-                        )
-                      }
-                      disabled={
-                        isUpdating
-                      }
-                      className="bg-blue-500 hover:bg-blue-600 disabled:opacity-50 px-4 py-2 rounded-lg"
-                    >
-                      {isUpdating
-                        ? "Saving..."
-                        : "Save"}
-                    </button>
-
-                    <button
-                      onClick={
-                        cancelEditing
-                      }
-                      className="bg-zinc-700 hover:bg-zinc-600 px-4 py-2 rounded-lg"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                  <div>
-                    <h2 className="font-semibold text-lg">
-                      {
-                        transaction.title
-                      }
-                    </h2>
-
-                    <p className="text-sm text-zinc-400">
-                      {
-                        transaction.category
-                      }
-                    </p>
-
-                    <p
-                      className={`text-sm ${
-                        transaction.amount >
-                        0
-                          ? "text-green-500"
-                          : "text-red-500"
-                      }`}
-                    >
-                      ₹
-                      {
-                        transaction.amount
-                      }
-                    </p>
-                  </div>
-
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() =>
-                        startEditing(
-                          transaction
-                        )
-                      }
-                      className="bg-yellow-500 hover:bg-yellow-600 px-4 py-2 rounded-lg"
-                    >
-                      Edit
-                    </button>
-
-                    <button
-                      onClick={() =>
-                        handleDelete(
-                          transaction._id
-                        )
-                      }
-                      disabled={
-                        deletingId ===
-                        transaction._id
-                      }
-                      className="bg-red-500 hover:bg-red-600 disabled:opacity-50 px-4 py-2 rounded-lg"
-                    >
-                      {deletingId ===
-                      transaction._id
-                        ? "Deleting..."
-                        : "Delete"}
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          )
-        )}
-      </div>
-    </MainLayout>
-  );
+export default function Transactions() {
+  const { transactions, loading, error, fetchTransactions, addTransaction, updateTransaction, deleteTransaction } = useTransactions();
+  const blank: Values = { title: "", amount: "", type: "expense", category: "Other", date: todayLocal() };
+  const [form, setForm] = useState<Values>(blank), [editing, setEditing] = useState<Transaction | null>(null), [edit, setEdit] = useState<Values>(blank);
+  const [search, setSearch] = useState(""), [filterCategory, setFilterCategory] = useState("All"), [filterType, setFilterType] = useState("all"), [sort, setSort] = useState("newest"), [busy, setBusy] = useState(false), [deleting, setDeleting] = useState<string | null>(null);
+  const filtered = useMemo(() => transactions.filter((row) => (!search || `${row.title} ${row.category}`.toLowerCase().includes(search.toLowerCase())) && (filterCategory === "All" || row.category === filterCategory) && (filterType === "all" || typeOf(row) === filterType)).sort((a, b) => sort === "amount" ? Math.abs(b.amount) - Math.abs(a.amount) : sort === "oldest" ? dateOf(a).localeCompare(dateOf(b)) : dateOf(b).localeCompare(dateOf(a))), [transactions, search, filterCategory, filterType, sort]);
+  const submitNew = async (event: FormEvent) => { event.preventDefault(); setBusy(true); try { await addTransaction({ title: form.title, amount: signedAmount(form.amount, form.type), category: form.category, transactionDate: form.date }); setForm({ ...blank, date: form.date }); toast.success("Transaction added"); } catch (e) { toast.error(getApiError(e, "Could not add transaction")); } finally { setBusy(false); } };
+  const openEdit = (row: Transaction) => { setEditing(row); setEdit({ title: row.title, amount: String(Math.abs(row.amount)), type: typeOf(row), category: row.category, date: dateOf(row) }); };
+  const submitEdit = async (event: FormEvent) => { event.preventDefault(); if (!editing) return; setBusy(true); try { await updateTransaction(editing._id, { title: edit.title, amount: signedAmount(edit.amount, edit.type), category: edit.category, transactionDate: edit.date }); toast.success("Transaction updated"); setEditing(null); } catch (e) { toast.error(getApiError(e, "Could not update transaction")); } finally { setBusy(false); } };
+  const remove = async (id: string) => { if (!window.confirm("Delete this transaction?")) return; setDeleting(id); try { await deleteTransaction(id); toast.success("Transaction deleted"); } catch (e) { toast.error(getApiError(e, "Could not delete transaction")); } finally { setDeleting(null); } };
+  return <MainLayout><div className="mx-auto max-w-7xl text-white"><header className="mb-7 flex flex-wrap items-end justify-between gap-4"><div><p className="text-sm font-semibold uppercase tracking-[.18em] text-emerald-300">Cash flow</p><h1 className="mt-1 text-3xl font-bold md:text-4xl">Transactions</h1><p className="mt-2 text-zinc-400">Search, review, and manage every movement of money.</p></div><span className="fin-badge bg-emerald-400/10 text-emerald-200">{transactions.length} total</span></header>
+    <TransactionTransfer />
+    {error && <div role="alert" className="fin-card mb-5 border-red-400/40 p-4 text-red-200">{error} <button onClick={() => void fetchTransactions().catch(() => {})} className="underline">Retry</button></div>}
+    <section className="fin-card mb-6 rounded-2xl p-5"><div className="mb-4 flex items-center gap-2"><Plus size={18} className="text-emerald-300"/><h2 className="font-semibold">Add transaction</h2></div><Form values={form} onChange={(change) => setForm((value) => ({ ...value, ...change }))} onSubmit={submitNew} busy={busy} label="Add transaction" /></section>
+    <section className="fin-card mb-6 rounded-2xl p-5" aria-label="Transaction filters"><div className="grid gap-3 md:grid-cols-4"><label className="relative md:col-span-2"><Search size={17} className="absolute left-3 top-3.5 text-zinc-500"/><span className="sr-only">Search transactions</span><input value={search} onChange={(e) => setSearch(e.target.value)} className="fin-input pl-10" placeholder="Search title or category" /></label><select aria-label="Filter category" value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} className="fin-input"><option>All</option>{categories.map((name) => <option key={name}>{name}</option>)}</select><select aria-label="Filter type" value={filterType} onChange={(e) => setFilterType(e.target.value)} className="fin-input"><option value="all">All types</option><option value="income">Income</option><option value="expense">Expenses</option></select><select aria-label="Sort transactions" value={sort} onChange={(e) => setSort(e.target.value)} className="fin-input md:col-start-4"><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="amount">Highest amount</option></select></div><p className="mt-3 text-sm text-zinc-400">Showing {filtered.length} of {transactions.length} transactions</p></section>
+    {loading ? <div role="status" className="fin-card rounded-2xl p-8 text-center text-zinc-400">Loading transactions…</div> : filtered.length === 0 ? <div className="fin-card rounded-2xl p-10 text-center"><p className="text-lg font-semibold">No transactions found</p><p className="mt-1 text-zinc-400">Try changing a filter or add your first transaction.</p></div> : <section className="fin-card overflow-hidden rounded-2xl"><div className="hidden grid-cols-[1.7fr_1fr_1fr_auto] gap-4 border-b border-white/10 px-5 py-3 text-xs font-semibold uppercase tracking-wider text-zinc-400 md:grid"><span>Transaction</span><span>Category</span><span>Date</span><span>Amount</span></div><div>{filtered.map((row) => { const income = row.amount > 0; return <article key={row._id} className="flex flex-col gap-3 border-b border-white/8 p-4 last:border-0 md:grid md:grid-cols-[1.7fr_1fr_1fr_auto] md:items-center md:gap-4 md:px-5"><div className="flex min-w-0 items-center gap-3"><span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${income ? "bg-emerald-400/12 text-emerald-300" : "bg-rose-400/12 text-rose-300"}`}>{income ? <ArrowUpRight size={19}/> : <ArrowDownRight size={19}/>}</span><div className="min-w-0"><h2 className="truncate font-semibold">{row.title}</h2><span className={`fin-badge mt-1 ${income ? "bg-emerald-400/10 text-emerald-200" : "bg-rose-400/10 text-rose-200"}`}>{income ? "Income" : "Expense"}</span></div></div><span className="text-sm text-zinc-300">{mark(row.category)} {row.category}</span><time className="text-sm text-zinc-400">{dateOf(row)}</time><div className="flex items-center justify-between gap-3 md:justify-end"><strong className={income ? "text-emerald-300" : "text-rose-300"}>{income ? "+" : "−"}{formatINR(Math.abs(row.amount))}</strong><div className="flex gap-1"><button aria-label={`Edit ${row.title}`} onClick={() => openEdit(row)} className="rounded-lg p-2 text-zinc-300 hover:bg-white/10"><Pencil size={16}/></button><button aria-label={`Delete ${row.title}`} disabled={deleting === row._id} onClick={() => void remove(row._id)} className="rounded-lg p-2 text-rose-300 hover:bg-rose-400/10"><Trash2 size={16}/></button></div></div></article>; })}</div></section>}
+    {editing && <div role="dialog" aria-modal="true" aria-labelledby="edit-title" className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4"><section className="fin-card w-full max-w-xl rounded-2xl p-6"><div className="mb-5 flex items-center justify-between"><div><h2 id="edit-title" className="text-xl font-bold">Edit transaction</h2><p className="text-sm text-zinc-400">Changes are saved only when confirmed.</p></div><button aria-label="Close edit dialog" onClick={() => setEditing(null)} className="rounded-lg p-2 hover:bg-white/10"><X size={18}/></button></div><Form values={edit} onChange={(change) => setEdit((value) => ({ ...value, ...change }))} onSubmit={submitEdit} busy={busy} label="Save changes" /></section></div>}
+  </div></MainLayout>;
 }
-
-export default Transactions;

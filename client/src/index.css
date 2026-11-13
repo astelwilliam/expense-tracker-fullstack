@@ -1,1 +1,21 @@
 @import "tailwindcss";
+
+:root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, sans-serif; background: #07110f; }
+body { margin: 0; min-width: 320px; background: radial-gradient(circle at 20% -10%, #123b33 0, transparent 32rem), #07110f; }
+button, input, select { transition: border-color .18s ease, background-color .18s ease, transform .18s ease; }
+button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid #34d399; outline-offset: 2px; }
+.fin-card { background: rgba(18, 30, 28, .74); border: 1px solid rgba(148, 163, 184, .15); box-shadow: 0 18px 50px rgba(0,0,0,.18); backdrop-filter: blur(14px); }
+.fin-card:hover { border-color: rgba(52,211,153,.35); }
+.page-enter { animation: rise .35s ease-out both; }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.fin-input { width: 100%; min-width: 0; border: 1px solid rgb(63 63 70); border-radius: .8rem; background: rgb(39 39 42 / .72); padding: .72rem .82rem; color: white; }
+.fin-input:hover { border-color: rgb(82 82 91); }
+.fin-input:focus { border-color: rgb(52 211 153); outline: 2px solid rgb(16 185 129 / .25); outline-offset: 1px; }
+.fin-button { display: inline-flex; align-items: center; justify-content: center; gap: .45rem; border-radius: .8rem; padding: .72rem 1rem; font-weight: 650; transition: transform .16s ease, background .16s ease, border-color .16s ease; }
+.fin-button:hover:not(:disabled) { transform: translateY(-1px); }
+.fin-button:disabled { cursor: not-allowed; opacity: .55; }
+.fin-button-primary { background: #34d399; color: #06251d; }
+.fin-button-primary:hover:not(:disabled) { background: #6ee7b7; }
+.fin-button-secondary { border: 1px solid rgb(82 82 91); background: rgb(39 39 42 / .7); color: #f4f4f5; }
+.fin-button-danger { border: 1px solid rgb(248 113 113 / .42); background: rgb(127 29 29 / .3); color: #fecaca; }
+.fin-badge { display: inline-flex; align-items: center; border-radius: 999px; padding: .24rem .56rem; font-size: .72rem; font-weight: 700; }

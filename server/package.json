@@ -5,17 +5,31 @@
   "main": "src/server.js",
   "scripts": {
     "dev": "nodemon src/server.js",
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "test": "node --test test/api.test.js test/spreadsheet.test.js test/validation.test.js test/smart-import.test.js test/smart-import-confirm.test.js",
+    "test:staging": "node --env-file=.env.test --test test/staging.integration.test.js",
+    "check:reference-index": "node --env-file=.env.test scripts/check-reference-id-index.js"
   },
   "dependencies": {
+    "@napi-rs/canvas": "^1.1.0",
+    "@tesseract.js-data/eng": "^1.0.0",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
-    "express": "^4.21.2",
+    "express": "^5.1.0",
+    "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.6.2"
+    "mongoose": "^9.6.2",
+    "multer": "^2.5.0",
+    "pdf-parse": "^2.4.5",
+    "tesseract.js": "^5.1.1",
+    "wasm-feature-detect": "^1.6.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "nodemon": "^3.1.14",
+    "pdfkit": "^0.17.2"
+  },
+  "engines": {
+    "node": ">=20.19.0"
   }
 }

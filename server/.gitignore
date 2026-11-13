@@ -1,4 +1,10 @@
 # Server
 node_modules/
 .env
+.env.*
+!.env.example
+
+dist
+coverage
+test-results
 
